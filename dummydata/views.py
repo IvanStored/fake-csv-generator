@@ -37,7 +37,7 @@ class FakeSchemaCreate(LoginRequiredMixin, CreateWithInlinesView):
     inlines = [
         FakeCSVSchemaColumnInline,
     ]
-    template_name = "dummydata/schema-create.html"
+    template_name = "dummydata/schema-form.html"
 
     def get_initial(self):
         return {"author": self.request.user}
@@ -61,7 +61,7 @@ class FakeSchemaEdit(
     inlines = [
         FakeCSVSchemaColumnInline,
     ]
-    template_name = "dummydata/schema-create.html"
+    template_name = "dummydata/schema-form.html"
 
     def get_success_url(self):
         if "action" in self.request.POST:
