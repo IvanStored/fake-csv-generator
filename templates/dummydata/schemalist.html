@@ -25,7 +25,7 @@
     <tr class="text-dark">
       <td>{{ forloop.counter }}</td>
       <td>
-        <a class="btn btn-link" href="{% url 'dummydata:schema-detail' fakeschema.pk%}"> {{ fakeschema.title}}</a>
+        <a class="btn btn-link" href="{{ fakeschema.get_absolute_url }}"> {{ fakeschema.title}}</a>
       </td>
       <td>
         {% if fakeschema.updated %} {{ fakeschema.updated }} {% else %} {{ fakeschema.created }} {% endif %}

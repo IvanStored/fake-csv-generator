@@ -40,8 +40,11 @@ INSTALLED_APPS = [
     "dummydata",
     "extra_views",
     "crispy_forms",
-    "crispy_bootstrap5"
+    "crispy_bootstrap5",
+    "sweetify",
 ]
+
+SWEETIFY_SWEETALERT_LIBRARY = 'sweetalert2'
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 

@@ -1,7 +1,10 @@
+import sweetify
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
+from django.db import transaction
 from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.views import generic
 from django.views.generic.edit import FormMixin
@@ -48,7 +51,8 @@ class FakeSchemaCreate(LoginRequiredMixin, CreateWithInlinesView):
                 return reverse_lazy(
                     "dummydata:schema-edit", kwargs={"pk": self.object.pk}
                 )
-            elif self.request.POST["action"] == "submit":
+            if self.request.POST["action"] == "submit":
+                sweetify.success(self.request, "Schema created!")
                 return reverse_lazy("dummydata:schema-list")
         return reverse_lazy("dummydata:schema-list")
 
@@ -69,7 +73,8 @@ class FakeSchemaEdit(
                 return reverse_lazy(
                     "dummydata:schema-edit", kwargs={"pk": self.object.pk}
                 )
-            elif self.request.POST["action"] == "submit":
+            if self.request.POST["action"] == "submit":
+                sweetify.success(self.request, "Saved!")
                 return reverse_lazy("dummydata:schema-list")
         return reverse_lazy("dummydata:schema-list")
 
@@ -79,11 +84,13 @@ class FakeSchemaEdit(
 
 
 @login_required
-def delete(request, pk):
-    schema = FakeSchema.objects.get(pk=pk)
+def delete_schema(request, pk):
+    schema = get_object_or_404(FakeSchema, pk=pk)
     if schema.author == request.user:
         schema.delete()
+        sweetify.success(request, "Successfully deleted!")
         return HttpResponseRedirect(reverse_lazy("dummydata:schema-list"))
+    sweetify.error(request, "It`s not your schema!")
     return HttpResponseRedirect(reverse_lazy("dummydata:schema-list"))
 
 
@@ -98,6 +105,7 @@ class DataSetsView(
         schema = self.get_object()
         return schema.author == self.request.user
 
+    @transaction.atomic
     def post(self, request, *args, **kwargs):
         schema = self.get_object()
         dataset = DataSet.objects.create(

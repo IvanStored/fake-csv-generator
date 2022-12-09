@@ -18,7 +18,10 @@
       {% include 'includes/navbar.html' %}
       <div class="container-sm" style="margin-top: 50px">
          {% block content %}
+
          {% endblock %}
+          {% load sweetify %}
+          {% sweetify %}
          {% include 'includes/pagination.html' %}
       </div>
    </body>
