@@ -2,42 +2,42 @@
 
 <h1>Data sets of {{ fakeschema.title }}</h1>
 <form method="post" id="upload_form">
-  {% csrf_token %} {{ form|crispy }}
-  <button type="submit" class="btn btn-success" id="click-me">Generate data</button>
+  {% csrf_token %}
+  <input type="number" name="rows" id="rows_id"/>
+  <button type="submit" class="btn btn-success" id="click-me" >Generate data</button>
 </form>
 <hr />
 {% if fakeschema.schemadatasets.count == 0 %}
 <p>No datasets yet.</p>
 {%else%}
+  <div id="datasets">
+    {% include 'dummydata/table.html'%}
+  </div>
+{% endif %}
+  <script>
+  $(document).ready(function (){
 
-<table class="table table-strip table-bordered text-center bg-white">
-  <thead class="table-primary">
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Created</th>
-      <th scope="col">Status</th>
-      <th scope="col">Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for dataset in fakeschema.schemadatasets.all %}
-    <tr>
-      <th scope="row">{{forloop.counter}}</th>
-      <td>{{ dataset.created }}</td>
-      <td>
-        {% if dataset.status == 1 %}
-        <span class="badge badge-success">Success</span>
-        {%else%}
-        <span class="badge badge-danger">Something wrong</span>
-        {%endif%}
-      </td>
+         $(document).on('submit','#upload_form', function(e){
+         e.preventDefault();
 
-      <td>
-        <a href="{{dataset.download_link}}" class="btn btn-link">Download</a>
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+           $.ajax({
+                type : "POST",
+                url: "{% url 'dummydata:schema-detail' fakeschema.pk%}",
+                data: {
+                 rows : $('#rows_id').val(),
+                 csrfmiddlewaretoken: '{{ csrf_token }}',
+                 dataType: "json",
 
-{% endif %} {% endblock %}
+                },
+
+                success: function(data){
+
+                    $(`#datasets`).html(data["msg"])
+                    document.getElementById("upload_form").reset()
+                },
+
+            });
+                 });
+  })
+      </script>
+{% endblock %}

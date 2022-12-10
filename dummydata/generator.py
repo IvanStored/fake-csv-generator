@@ -23,7 +23,7 @@ def generate_fake_data(type_: int, range_: tuple[int, int] = (0, 0)) -> str:
     return fake_data[type_]
 
 
-def generate_csv_file(dataset: DataSet) -> str:
+def generate_csv_file(dataset: DataSet) -> None:
     schema = FakeSchema.objects.get(id=dataset.schema.id)
     columns = (
         FakeSchemaColumn.objects.filter(schema=schema)
@@ -63,5 +63,8 @@ def generate_csv_file(dataset: DataSet) -> str:
                 row[column["column_name"]] = value
 
             writer.writerow(row)
-
-    return f"{settings.MEDIA_URL}schema{schema.title}_dataset{dataset.id}.csv"
+    dataset.status = 1
+    dataset.download_link = (
+        f"{settings.MEDIA_URL}schema{schema.title}_dataset{dataset.id}.csv"
+    )
+    dataset.save()

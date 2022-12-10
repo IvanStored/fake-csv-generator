@@ -3,8 +3,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
 from django.db import transaction
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.views import generic
 from django.views.generic.edit import FormMixin
@@ -94,6 +95,10 @@ def delete_schema(request, pk):
     return HttpResponseRedirect(reverse_lazy("dummydata:schema-list"))
 
 
+def is_ajax(request):
+    return request.META.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest"
+
+
 class DataSetsView(
     LoginRequiredMixin, UserPassesTestMixin, FormMixin, generic.DetailView
 ):
@@ -111,11 +116,19 @@ class DataSetsView(
         dataset = DataSet.objects.create(
             schema=schema, rows=int(request.POST["rows"])
         )
-        dataset.download_link = generate_csv_file(dataset)
-        dataset.status = 1
-        dataset.save()
-        return HttpResponseRedirect(
-            reverse_lazy(
-                "dummydata:schema-detail", kwargs={"pk": schema.pk}
+
+        if is_ajax(request):
+
+            generate_csv_file(dataset)
+
+            html = render_to_string(
+                "dummydata/table.html",
+                context={"fakeschema": schema},
+                request=request,
             )
+
+            return JsonResponse({"msg": html})
+
+        return HttpResponseRedirect(
+            reverse_lazy("dummydata:schema-detail", kwargs={"pk": schema.pk})
         )
