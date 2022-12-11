@@ -70,6 +70,10 @@ class FakeSchemaColumn(models.Model):
 
     def clean(self):
         super(FakeSchemaColumn, self).clean()
+        if not self.order:
+            self.order = FakeSchemaColumn.objects.filter(
+                schema=self.schema
+            ).count() + 1
         if self.range_from is None or self.range_to is None:
             raise ValidationError({"__all__": "Must be int"})
         if self.range_from > self.range_to:
