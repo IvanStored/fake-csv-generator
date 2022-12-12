@@ -1,5 +1,12 @@
 # Fake CSV Generator
-ivanstored.pythonanywhere.com
+
+Check it out -> [Let`s try!](ivanstored.pythonanywhere.com)
+
+admin
+
+1qazcde3
+
+
 ## Features
 
 - Any user can log in to the system with a username and password.
