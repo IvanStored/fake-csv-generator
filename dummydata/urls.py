@@ -4,9 +4,9 @@ from .views import (
     FakeSchemaListView,
     FakeSchemaCreate,
     FakeSchemaEdit,
-    delete_schema,
     DataSetsView,
     Login,
+    SchemaDelete,
 )
 
 urlpatterns = [
@@ -16,7 +16,11 @@ urlpatterns = [
     path(
         "schemas/edit/<int:pk>/", FakeSchemaEdit.as_view(), name="schema-edit"
     ),
-    path("schemas/delete/<int:pk>/", delete_schema, name="schema-delete"),
+    path(
+        "schemas/delete/<int:pk>/",
+        SchemaDelete.as_view(),
+        name="schema-delete",
+    ),
     path("schemas/<int:pk>/", DataSetsView.as_view(), name="schema-detail"),
 ]
 app_name = "dummydata"

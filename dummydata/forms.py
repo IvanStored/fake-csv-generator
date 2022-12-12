@@ -5,6 +5,10 @@ from dummydata.models import FakeSchema, FakeSchemaColumn, DataSet
 
 
 class FakeSchemaForm(forms.ModelForm):
+    title = forms.CharField(
+        widget=forms.TextInput(attrs={"placeholder": "Write name of schema"})
+    )
+
     class Meta:
         model = FakeSchema
         fields = "__all__"
@@ -12,22 +16,20 @@ class FakeSchemaForm(forms.ModelForm):
 
 
 class FakeCSVSchemaColumnForm(forms.ModelForm):
+    column_name = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={"placeholder": "Write column name"}),
+    )
+
     class Meta:
         model = FakeSchemaColumn
         fields = "__all__"
-
-        widgets = {
-            "name": forms.TextInput(),
-            "order": forms.NumberInput(),
-            "data_type": forms.Select(),
-            "data_range_from": forms.NumberInput(),
-            "data_range_to": forms.NumberInput(),
-        }
 
 
 class FakeCSVSchemaColumnInline(InlineFormSetFactory):
     model = FakeSchemaColumn
     form_class = FakeCSVSchemaColumnForm
+
     fields = "__all__"
 
     factory_kwargs = {

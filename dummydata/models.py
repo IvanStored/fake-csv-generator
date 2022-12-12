@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 
@@ -19,9 +18,7 @@ class FakeSchema(models.Model):
         ("'", "Single-quote(')"),
     ]
 
-    title = models.CharField(
-        max_length=63, blank=True, null=True, default="Untitled"
-    )
+    title = models.CharField(max_length=63, blank=True, null=True)
     column_separator = models.TextField(
         choices=DELIMITERS, default=",", max_length=1
     )
@@ -44,23 +41,21 @@ class FakeSchema(models.Model):
 class FakeSchemaColumn(models.Model):
 
     DATA_TYPES = [
-        (0, "Full name (a combination of first name and last name)"),
-        (1, "Job"),
-        (2, "Email"),
-        (3, "Domain name"),
-        (4, "Phone number"),
-        (5, "Company name"),
-        (6, "Text (with a specified range for a number of sentences)"),
-        (7, "Integer (with specified range)"),
-        (8, "Address"),
-        (9, "Date"),
+        ("Full_name", "Full name (a combination of first name and last name)"),
+        ("Job", "Job"),
+        ("Email", "Email"),
+        ("Domain", "Domain name"),
+        ("Phone", "Phone number"),
+        ("Company", "Company name"),
+        ("Text", "Text (with a specified range for a number of sentences)"),
+        ("Integer", "Integer (with specified range)"),
+        ("Address", "Address"),
+        ("Date", "Date"),
     ]
 
     column_name = models.CharField(max_length=20)
-    data_type = models.IntegerField(choices=DATA_TYPES, default=0)
+    data_type = models.CharField(max_length=20, choices=DATA_TYPES)
     order = models.PositiveIntegerField(default=0)
-    range_from = models.PositiveIntegerField(default=0, blank=True, null=True)
-    range_to = models.PositiveIntegerField(default=0, blank=True, null=True)
     schema = models.ForeignKey(
         FakeSchema, on_delete=models.CASCADE, related_name="schemacolumns"
     )
@@ -71,13 +66,9 @@ class FakeSchemaColumn(models.Model):
     def clean(self):
         super(FakeSchemaColumn, self).clean()
         if not self.order:
-            self.order = FakeSchemaColumn.objects.filter(
-                schema=self.schema
-            ).count() + 1
-        if self.range_from is None or self.range_to is None:
-            raise ValidationError({"__all__": "Must be int"})
-        if self.range_from > self.range_to:
-            raise ValidationError({"__all__": "Min must be less than max."})
+            self.order = (
+                FakeSchemaColumn.objects.filter(schema=self.schema).count() + 1
+            )
 
 
 class DataSet(models.Model):

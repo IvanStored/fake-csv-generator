@@ -53,7 +53,6 @@ class FakeSchemaCreate(LoginRequiredMixin, CreateWithInlinesView):
                     "dummydata:schema-edit", kwargs={"pk": self.object.pk}
                 )
             if self.request.POST["action"] == "submit":
-                sweetify.success(self.request, "Schema created!")
                 return reverse_lazy("dummydata:schema-list")
         return reverse_lazy("dummydata:schema-list")
 
@@ -75,7 +74,6 @@ class FakeSchemaEdit(
                     "dummydata:schema-edit", kwargs={"pk": self.object.pk}
                 )
             if self.request.POST["action"] == "submit":
-                sweetify.success(self.request, "Saved!")
                 return reverse_lazy("dummydata:schema-list")
         return reverse_lazy("dummydata:schema-list")
 
@@ -84,15 +82,16 @@ class FakeSchemaEdit(
         return schema.author == self.request.user
 
 
-@login_required
-def delete_schema(request, pk):
-    schema = get_object_or_404(FakeSchema, pk=pk)
-    if schema.author == request.user:
-        schema.delete()
-        sweetify.success(request, "Successfully deleted!")
-        return HttpResponseRedirect(reverse_lazy("dummydata:schema-list"))
-    sweetify.error(request, "It`s not your schema!")
-    return HttpResponseRedirect(reverse_lazy("dummydata:schema-list"))
+class SchemaDelete(LoginRequiredMixin, UserPassesTestMixin, generic.DeleteView):
+    model = FakeSchema
+
+    def get_success_url(self):
+        sweetify.success(self.request, "Schema was deleted")
+        return reverse_lazy("dummydata:schema-list")
+
+    def test_func(self):
+        schema = self.get_object()
+        return schema.author == self.request.user
 
 
 def is_ajax(request):
@@ -109,6 +108,13 @@ class DataSetsView(
     def test_func(self):
         schema = self.get_object()
         return schema.author == self.request.user
+
+    def get_context_data(self, **kwargs):
+        context = super(DataSetsView, self).get_context_data()
+        schema = self.get_object()
+        columns = schema.schemacolumns.all()
+        context["columns"] = columns
+        return context
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):

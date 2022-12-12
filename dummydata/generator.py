@@ -6,19 +6,21 @@ from faker import Faker
 from .models import DataSet, FakeSchema, FakeSchemaColumn
 
 
-def generate_fake_data(type_: int, range_: tuple[int, int] = (0, 0)) -> str:
+def generate_fake_data(type_: int, range_=(0, 100)) -> str:
     fake = Faker()
     fake_data = {
-        0: fake.name(),
-        1: fake.job(),
-        2: fake.email(),
-        3: fake.email().split("@")[-1],
-        4: fake.phone_number(),
-        5: fake.company(),
-        6: fake.sentences(nb=fake.random_int(min=range_[0], max=range_[1])),
-        7: fake.random_int(*range_),
-        8: fake.address(),
-        9: fake.date(),
+        "Full_name": fake.name(),
+        "Job": fake.job(),
+        "Email": fake.email(),
+        "Domain": fake.email().split("@")[-1],
+        "Phone": fake.phone_number(),
+        "Company": fake.company(),
+        "Text": fake.sentences(
+            nb=fake.random_int(min=range_[0], max=range_[1])
+        ),
+        "Integer": fake.random_int(*range_),
+        "Address": fake.address(),
+        "Date": fake.date(),
     }
     return fake_data[type_]
 
@@ -55,11 +57,6 @@ def generate_csv_file(dataset: DataSet) -> None:
             row = {}
             for column in columns:
                 value = generate_fake_data(column["data_type"])
-                if column["data_type"] in (6, 7):
-                    value = generate_fake_data(
-                        column["data_type"],
-                        range_=(column["range_from"], column["range_to"]),
-                    )
                 row[column["column_name"]] = value
 
             writer.writerow(row)
