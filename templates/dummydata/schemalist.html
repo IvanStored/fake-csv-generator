@@ -1,0 +1,43 @@
+{% extends "base.html" %} {% block title %}
+<title>Schema list</title>
+{% endblock %} {% block content %}
+
+<h1>
+  Data schemas
+
+  <a class="btn btn-success" href="{% url 'dummydata:schema-create' %}">
+    Create Schema
+    <i class="fas fa-plus"></i>
+  </a>
+</h1>
+{% if fakeschema_list %}
+<table class="table table-strip table-bordered text-center bg-white">
+  <thead class="table-primary">
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Title</th>
+      <th scope="col">Modified</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  {% for fakeschema in fakeschema_list %}
+  <tbody>
+    <tr class="text-dark">
+      <td>{{ forloop.counter }}</td>
+      <td>
+        <a class="btn btn-link" href="{{ fakeschema.get_absolute_url }}"> {{ fakeschema.title}}</a>
+      </td>
+      <td>
+        {% if fakeschema.updated %} {{ fakeschema.updated }} {% else %} {{ fakeschema.created }} {% endif %}
+      </td>
+      <td>
+        <a class="btn btn-success" href="{% url 'dummydata:schema-edit' pk=fakeschema.id%}"> <i class="far fa-edit"></i></a>
+        <a class="btn btn-danger" href="{% url 'dummydata:schema-delete' pk=fakeschema.id%}"> <i class="far fa-trash-alt"></i></a>
+      </td>
+    </tr>
+  </tbody>
+  {% endfor %}
+</table>
+{% else %}
+<p>There is no schemas :(</p>
+{% endif %} {% endblock %}
